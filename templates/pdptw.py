@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: PDPTW (sketch)
+# EvoCut Pyomo Template: PDPTW (sketch)
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -21,6 +21,6 @@ def build_model(data):
     # Time window constraints (omitted)
     # Capacity constraints (omitted)
 
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m

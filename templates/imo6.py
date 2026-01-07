@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: IMO6 (generic MILP sketch)
+# EvoCut Pyomo Template: IMO6 (generic MILP sketch)
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -22,6 +22,6 @@ def build_model(data):
         rule=lambda m, i: sum(m.a[i, j] * m.x[j] for j in m.J) >= m.b[i]
     )
 
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m

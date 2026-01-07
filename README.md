@@ -1,6 +1,6 @@
-# AlphaEvolve Fancy HTML Demo (static)
+# EvoCut Fancy HTML Demo (static)
 
-This is a **static** (no backend required) demo UI for AlphaEvolve-style runs.
+This is a **static** (no backend required) demo UI for EvoCut-style runs.
 
 It has **two pages**:
 
@@ -16,13 +16,13 @@ It has **two pages**:
 2. Put your Pyomo templates into `./templates/` (or edit the ones provided).
    - Each template can optionally include the marker:
      ```py
-     # <ALPHAEVOLVE_INSERT_CUT_HERE>
+     # <EVOCUT_INSERT_CUT_HERE>
      ```
      Cuts will be inserted there during playback; otherwise they’re appended to the bottom.
 
 3. Serve the folder with a local web server (fetch() won’t work reliably with file://):
    ```bash
-   cd alphaevolve-demo
+   cd evocut-demo
    python -m http.server 5173
    ```
    Then open:
@@ -57,5 +57,5 @@ Everything is displayed with animations and delays to look like a live run.
 
 ## Notes
 
-- This is a **frontend-only** demo: it does not run Pyomo nor AlphaEvolve.  
+- This is a **frontend-only** demo: it does not run Pyomo nor EvoCut.  
   It is designed for presentations and recorded demos. Later you can plug a backend into the same UI.

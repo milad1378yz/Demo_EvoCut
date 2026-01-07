@@ -26,12 +26,12 @@ export function getQueryParams(){
 }
 
 export function saveConfig(cfg){
-  localStorage.setItem("alphaevolve_demo_config", JSON.stringify(cfg));
+  localStorage.setItem("evocut_demo_config", JSON.stringify(cfg));
 }
 
 export function loadConfig(){
   try{
-    const s = localStorage.getItem("alphaevolve_demo_config");
+    const s = localStorage.getItem("evocut_demo_config");
     return s ? JSON.parse(s) : null;
   }catch(e){
     return null;

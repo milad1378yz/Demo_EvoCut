@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: CWLP (sketch)
+# EvoCut Pyomo Template: CWLP (sketch)
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -23,6 +23,6 @@ def build_model(data):
     m.demand = pyo.Constraint(m.I, rule=lambda m, i: sum(m.x[i, j] for j in m.J) == m.d[i])
     m.capacity = pyo.Constraint(m.J, rule=lambda m, j: sum(m.x[i, j] for i in m.I) <= m.cap[j] * m.y[j])
 
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m

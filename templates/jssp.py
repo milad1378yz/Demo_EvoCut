@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: JSSP (sketch)
+# EvoCut Pyomo Template: JSSP (sketch)
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -18,6 +18,6 @@ def build_model(data):
     # Machine disjunctive constraints (omitted)
     # ...
 
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m

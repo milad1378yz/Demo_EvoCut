@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: MCND (sketch)
+# EvoCut Pyomo Template: MCND (sketch)
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -25,6 +25,6 @@ def build_model(data):
     # Flow conservation constraints (omitted for brevity)
     # ...
 
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m

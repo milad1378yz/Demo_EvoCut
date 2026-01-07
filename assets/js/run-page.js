@@ -95,7 +95,7 @@ async function main(){
   }
 
   // Header
-  qs("#runTitle").textContent = `${cfg.problem?.name ?? cfg.problem?.id} • AlphaEvolve Replay`;
+  qs("#runTitle").textContent = `${cfg.problem?.name ?? cfg.problem?.id} • EvoCut Replay`;
   qs("#runMeta").textContent = `Run ${cfg.runId} • target: ${cfg.objective?.target ?? "—"} • max generations: ${cfg.evolution?.maxGenerations ?? "—"}`;
 
   // Fetch JSON run

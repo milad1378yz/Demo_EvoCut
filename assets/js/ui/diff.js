@@ -5,10 +5,10 @@ import { escapeHtml } from "../utils.js";
  * If marker is present, insert there; otherwise append at end.
  */
 export function injectCut(templateCode, cutText){
-  const marker = "# <ALPHAEVOLVE_INSERT_CUT_HERE>";
+  const marker = "# <EVOCUT_INSERT_CUT_HERE>";
   const cutBlock = cutText?.trim()
-    ? `# >>> AlphaEvolve: inserted cut\n${cutText.trim()}\n# <<< AlphaEvolve\n`
-    : `# >>> AlphaEvolve: no cut for this generation\n# <<< AlphaEvolve\n`;
+    ? `# >>> EvoCut: inserted cut\n${cutText.trim()}\n# <<< EvoCut\n`
+    : `# >>> EvoCut: no cut for this generation\n# <<< EvoCut\n`;
 
   if (templateCode.includes(marker)){
     return templateCode.replace(marker, cutBlock + marker);

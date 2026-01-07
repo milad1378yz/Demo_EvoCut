@@ -1,4 +1,4 @@
-# AlphaEvolve Pyomo Template: TSP
+# EvoCut Pyomo Template: TSP
 import pyomo.environ as pyo
 
 def build_model(data):
@@ -25,7 +25,7 @@ def build_model(data):
         rule=lambda m, j: sum(m.x[i, j] for i in m.N if (i, j) in m.A) == 1
     )
 
-    # Subtour elimination will be improved by AlphaEvolve
-    # <ALPHAEVOLVE_INSERT_CUT_HERE>
+    # Subtour elimination will be improved by EvoCut
+    # <EVOCUT_INSERT_CUT_HERE>
 
     return m
