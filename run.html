@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en" class="noise">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AlphaEvolve • Replay</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- jsdiff -->
+  <script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+
+<body class="min-h-screen">
+  <canvas id="bgParticles" class="fixed inset-0 -z-10"></canvas>
+
+  <div class="max-w-7xl mx-auto px-5 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <div class="badge mb-3"><span class="pulse-dot"></span> live replay</div>
+        <h1 id="runTitle" class="text-2xl md:text-3xl font-extrabold tracking-tight">AlphaEvolve Replay</h1>
+        <div id="runMeta" class="text-xs text-white/55 mt-2">—</div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="btn-outline px-4 py-2 rounded-xl text-sm">← Setup</a>
+        <button id="replayBtn" class="btn-primary px-4 py-2 rounded-xl text-sm font-semibold">Replay</button>
+      </div>
+    </div>
+
+    <div class="divider my-6"></div>
+
+    <div id="fatal" class="hidden glass rounded-2xl p-4 border border-rose-500/30 text-rose-100"></div>
+
+    <div id="missingCfg" class="hidden glass rounded-3xl p-6">
+      <h2 class="text-lg font-bold">No config found</h2>
+      <p class="text-white/60 mt-2">Open the setup page first to create a run config.</p>
+      <a class="btn-primary inline-block mt-4 px-4 py-2 rounded-xl font-semibold text-sm" href="./index.html">Go to Setup</a>
+    </div>
+
+    <!-- Main -->
+    <div class="grid lg:grid-cols-12 gap-6">
+      <!-- Timeline -->
+      <aside class="lg:col-span-4 glass rounded-3xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold">Evolution timeline</h2>
+            <p class="text-sm text-white/60 mt-1">Each generation appears with a delay to mimic real-time evolution.</p>
+          </div>
+          <div class="badge">populations</div>
+        </div>
+
+        <div id="timeline" class="mt-4 max-h-[620px] overflow-auto mini-scroll pr-1"></div>
+      </aside>
+
+      <!-- Diff + Code -->
+      <section class="lg:col-span-8 space-y-6">
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">Model delta (skeleton → injected cut)</h2>
+              <p class="text-sm text-white/60 mt-1">We show a line diff from the previous generation’s code.</p>
+            </div>
+            <div class="badge">diff view</div>
+          </div>
+
+          <div id="diffBox" class="codebox mt-4"></div>
+
+          <div class="mt-3 text-xs text-white/50">
+            Insert location is the marker line: <code class="text-white/70"># &lt;ALPHAEVOLVE_INSERT_CUT_HERE&gt;</code>
+          </div>
+        </div>
+
+        <!-- KPIs + Best idea -->
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="kpi">
+            <div class="label">Best fitness</div>
+            <div id="kpiBest" class="value" data-raw="0">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Mean fitness</div>
+            <div id="kpiMean" class="value" data-raw="0">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Std dev</div>
+            <div id="kpiStd" class="value" data-raw="0">—</div>
+          </div>
+        </div>
+
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">Best individual (current gen)</h2>
+              <p id="bestIdea" class="text-sm text-white/70 mt-1">—</p>
+            </div>
+            <div class="badge">idea</div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
+            <div class="codebox">
+              <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Inserted cut snippet</div>
+              <pre id="cutSnippet" class="text-xs leading-5 p-4 overflow-auto mini-scroll">—</pre>
+            </div>
+
+            <div class="codebox">
+              <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Top individuals (preview)</div>
+              <div id="popTable" class="p-4 overflow-auto mini-scroll max-h-[240px]">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">Fitness trajectory</h2>
+              <p class="text-sm text-white/60 mt-1">Best + mean with σ band (shaded).</p>
+            </div>
+            <div class="badge">live chart</div>
+          </div>
+
+          <div class="mt-4 h-[320px]">
+            <canvas id="fitnessChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Final summary -->
+        <div id="summary" class="hidden glass rounded-3xl p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-extrabold tracking-tight">Final improvement</h2>
+              <p class="text-sm text-white/60 mt-1">
+                Baseline best fitness: <span id="baselineBest" class="font-semibold text-white/80">—</span>
+              </p>
+            </div>
+            <div class="badge">result</div>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-4 mt-5">
+            <div class="kpi">
+              <div class="label">Final best fitness</div>
+              <div id="finalBest" class="value">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Absolute improvement</div>
+              <div id="finalDelta" class="value">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Relative improvement</div>
+              <div id="finalPct" class="value">—</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-white/50 mt-4">
+            Next step: plug a backend runner (AlphaEvolve) into the same UI and stream updates instead of replaying JSON.
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <div class="divider my-10"></div>
+
+    <footer class="text-xs text-white/45">
+      Replay is simulated from completed JSON files. For a real-time run, replace the fetch() with a websocket/SSE stream.
+    </footer>
+  </div>
+
+  <script type="module" src="./assets/js/run-page.js"></script>
+</body>
+</html>

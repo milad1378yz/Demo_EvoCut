@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en" class="noise">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AlphaEvolve • Fancy Demo</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- CodeMirror 5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+
+  <!-- GSAP for animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+
+<body class="min-h-screen">
+  <canvas id="bgParticles" class="fixed inset-0 -z-10"></canvas>
+
+  <div class="max-w-7xl mx-auto px-5 py-10">
+    <!-- Header -->
+    <div class="enter flex items-center justify-between gap-6">
+      <div>
+        <div class="badge mb-3">✨ demo • static • replay</div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+          AlphaEvolve <span class="text-white/60">Fancy GUI</span>
+        </h1>
+        <p class="text-white/60 mt-2 max-w-2xl">
+          Page 1: configure problem + strategy. Page 2: “live” replay from completed JSON runs with code diffs + charts.
+        </p>
+      </div>
+      <div class="enter hidden md:flex items-center gap-3">
+        <a href="./run.html" class="btn-outline px-4 py-2 rounded-xl text-sm">Open Replay</a>
+        <div class="divider w-10"></div>
+        <div class="text-xs text-white/50">No backend required</div>
+      </div>
+    </div>
+
+    <div class="divider my-8"></div>
+
+    <div id="fatal" class="hidden glass rounded-2xl p-4 border border-rose-500/30 text-rose-100"></div>
+
+    <div class="grid lg:grid-cols-12 gap-6">
+      <!-- Left: problem + code -->
+      <section id="codeCard" class="enter lg:col-span-7 glass rounded-3xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold">1) Problem & Model Code</h2>
+            <p class="text-sm text-white/60 mt-1">
+              Pick a predefined Pyomo template (or paste your own). The replay page will inject the evolving cut into the marker.
+            </p>
+          </div>
+          <div class="badge">Pyomo • Python</div>
+        </div>
+
+        <div class="mt-4 grid md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-white/60 mb-1">Problem</label>
+            <select id="problemSelect"
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/50">
+              <option>Loading…</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-white/60 mb-1">Template status</label>
+            <div id="templateHint"
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white/70">
+              —
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 codebox">
+          <textarea id="codeEditor"></textarea>
+        </div>
+
+        <div class="mt-3 text-xs text-white/50">
+          Tip: include a marker line in your template: <code class="text-white/70"># &lt;ALPHAEVOLVE_INSERT_CUT_HERE&gt;</code>
+        </div>
+      </section>
+
+      <!-- Right: strategy + objective -->
+      <section class="enter lg:col-span-5 space-y-6">
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">2) Improvement Strategy</h2>
+              <p class="text-sm text-white/60 mt-1">
+                UI is general-purpose like AlphaEvolve fields — even if only “Add cuts” is implemented today.
+              </p>
+            </div>
+            <div class="badge">extensible</div>
+          </div>
+
+          <div id="actionsWrap" class="mt-4 space-y-3"></div>
+        </div>
+
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">3) What to improve</h2>
+              <p class="text-sm text-white/60 mt-1">
+                Choose your target metric (gap/time/nodes/PDI/etc.). The form changes based on target.
+              </p>
+            </div>
+            <div class="badge">objective</div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-xs text-white/60 mb-1">Target</label>
+            <select id="targetSelect"
+              class="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/50">
+              <option>Loading…</option>
+            </select>
+          </div>
+
+          <div id="targetParams" class="mt-4"></div>
+        </div>
+
+        <div class="glass rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-bold">4) Evolution Budget</h2>
+              <p class="text-sm text-white/60 mt-1">Controls the replay length (max populations/generations) and animation speed.</p>
+            </div>
+            <div class="badge">demo controls</div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="col-span-2">
+              <div class="flex items-center justify-between text-xs text-white/60 mb-1">
+                <span>Max generations</span>
+                <span class="badge"><span id="maxPopsValue">—</span></span>
+              </div>
+              <input id="maxPops" type="range" min="1" max="50" value="12" class="w-full" />
+            </div>
+
+            <div class="col-span-2">
+              <div class="flex items-center justify-between text-xs text-white/60 mb-1">
+                <span>Replay speed</span>
+                <span class="badge"><span id="speedValue">—</span></span>
+              </div>
+              <input id="speed" type="range" min="120" max="1400" step="20" value="520" class="w-full" />
+            </div>
+          </div>
+
+          <button id="startBtn"
+            class="btn-primary w-full mt-5 px-4 py-3 rounded-2xl font-semibold text-sm tracking-wide transition-transform">
+            Start Demo Replay →
+          </button>
+
+          <div class="text-xs text-white/50 mt-3">
+            This will save your config to <code class="text-white/70">localStorage</code> and open <code class="text-white/70">run.html</code>.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="divider my-10"></div>
+
+    <footer class="text-xs text-white/45">
+      Built as a static fancy UI: Tailwind + GSAP + CodeMirror + Chart.js + jsdiff. Replace JSONs/templates with your real AlphaEvolve outputs.
+    </footer>
+  </div>
+
+  <script type="module" src="./assets/js/setup-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+{
+  "current_population": [
+    {
+      "id": "88f22e6f-1f05-4caf-8e01-f3b1238d262c",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[0]",
+        "added_cut": "# Cut discovered at gen 6, indiv 0\nmodel.cuts.add(model.x[0] <= 6)"
+      },
+      "fitness": 6.227,
+      "solver_reports": [],
+      "generator": "mutation",
+      "parents_id": null
+    },
+    {
+      "id": "759b2569-6f07-4004-8d4c-0bf49d42e907",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[1]",
+        "added_cut": "# Cut discovered at gen 6, indiv 1\nmodel.cuts.add(model.x[1] <= 7)"
+      },
+      "fitness": 6.617,
+      "solver_reports": [],
+      "generator": "crossover",
+      "parents_id": null
+    },
+    {
+      "id": "8cb51403-1c64-4cba-9805-ff0a4863a5a9",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[2]",
+        "added_cut": "# Cut discovered at gen 6, indiv 2\nmodel.cuts.add(model.x[2] <= 8)"
+      },
+      "fitness": 6.697,
+      "solver_reports": [],
+      "generator": "mutation",
+      "parents_id": null
+    },
+    {
+      "id": "28aabaff-f6a3-4a26-8d64-4ada570084a3",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[3]",
+        "added_cut": "# Cut discovered at gen 6, indiv 3\nmodel.cuts.add(model.x[3] <= 9)"
+      },
+      "fitness": 6.938,
+      "solver_reports": [],
+      "generator": "crossover",
+      "parents_id": null
+    },
+    {
+      "id": "54b13b1c-0674-4b09-90e9-97e65ada84f7",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[4]",
+        "added_cut": "# Cut discovered at gen 6, indiv 4\nmodel.cuts.add(model.x[4] <= 10)"
+      },
+      "fitness": 7.079,
+      "solver_reports": [],
+      "generator": "mutation",
+      "parents_id": null
+    },
+    {
+      "id": "e2cb24f5-a45f-4512-acb3-d783a083c4d0",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[5]",
+        "added_cut": "# Cut discovered at gen 6, indiv 5\nmodel.cuts.add(model.x[5] <= 11)"
+      },
+      "fitness": 6.973,
+      "solver_reports": [],
+      "generator": "crossover",
+      "parents_id": null
+    },
+    {
+      "id": "8da52c53-70d6-448e-8eac-39d817bae687",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[6]",
+        "added_cut": "# Cut discovered at gen 6, indiv 6\nmodel.cuts.add(model.x[6] <= 12)"
+      },
+      "fitness": 6.913,
+      "solver_reports": [],
+      "generator": "mutation",
+      "parents_id": null
+    },
+    {
+      "id": "557e118f-ce8c-40f8-88ad-caaac72edc4d",
+      "chromosome": {
+        "idea": "Gen6: tighten bound on x[7]",
+        "added_cut": "# Cut discovered at gen 6, indiv 7\nmodel.cuts.add(model.x[7] <= 13)"
+      },
+      "fitness": 6.881,
+      "solver_reports": [],
+      "generator": "crossover",
+      "parents_id": null
+    }
+  ],
+  "prev_populations": [
+    [
+      [
+        {
+          "id": "31dcde20-f6bd-436d-b686-d86dfdc43f62",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[0]",
+            "added_cut": "# Cut discovered at gen 1, indiv 0\nmodel.cuts.add(model.x[0] <= 1)"
+          },
+          "fitness": 1.032,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "53ec26d1-1fe0-4880-ac0f-a56fc4d1f12e",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[1]",
+            "added_cut": "# Cut discovered at gen 1, indiv 1\nmodel.cuts.add(model.x[1] <= 2)"
+          },
+          "fitness": 1.362,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "e8d96d53-c3d3-4df1-bfe2-6fde1e94d12b",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[2]",
+            "added_cut": "# Cut discovered at gen 1, indiv 2\nmodel.cuts.add(model.x[2] <= 3)"
+          },
+          "fitness": 1.526,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "e9921d2f-e8f1-44ce-859d-640f44f9b99e",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[3]",
+            "added_cut": "# Cut discovered at gen 1, indiv 3\nmodel.cuts.add(model.x[3] <= 4)"
+          },
+          "fitness": 1.756,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "9b76759e-b212-40cf-8e37-7544ae1e8084",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[4]",
+            "added_cut": "# Cut discovered at gen 1, indiv 4\nmodel.cuts.add(model.x[4] <= 5)"
+          },
+          "fitness": 1.747,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "8d725683-885a-4ac0-9dcf-6084e282c5a9",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[5]",
+            "added_cut": "# Cut discovered at gen 1, indiv 5\nmodel.cuts.add(model.x[5] <= 6)"
+          },
+          "fitness": 1.998,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "2220e27f-13f0-42c9-abe1-51bef5611e03",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[6]",
+            "added_cut": "# Cut discovered at gen 1, indiv 6\nmodel.cuts.add(model.x[6] <= 7)"
+          },
+          "fitness": 1.715,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "c4038659-d314-4edb-bad1-34cc020c4a13",
+          "chromosome": {
+            "idea": "Gen1: tighten bound on x[7]",
+            "added_cut": "# Cut discovered at gen 1, indiv 7\nmodel.cuts.add(model.x[7] <= 8)"
+          },
+          "fitness": 2.085,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        }
+      ],
+      2.085
+    ],
+    [
+      [
+        {
+          "id": "a89e62ec-36ef-4f2d-ad6a-016db45f2249",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[0]",
+            "added_cut": "# Cut discovered at gen 2, indiv 0\nmodel.cuts.add(model.x[0] <= 2)"
+          },
+          "fitness": 2.075,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "1552f50d-7842-4df1-aac4-094474c593f5",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[1]",
+            "added_cut": "# Cut discovered at gen 2, indiv 1\nmodel.cuts.add(model.x[1] <= 3)"
+          },
+          "fitness": 2.202,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "b0feb2dc-7fe8-44bf-80e4-aea87d5b8fc1",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[2]",
+            "added_cut": "# Cut discovered at gen 2, indiv 2\nmodel.cuts.add(model.x[2] <= 4)"
+          },
+          "fitness": 2.748,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "6cdc0fd2-739e-4655-921a-88e448ae17d1",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[3]",
+            "added_cut": "# Cut discovered at gen 2, indiv 3\nmodel.cuts.add(model.x[3] <= 5)"
+          },
+          "fitness": 2.426,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "05770a88-9003-4378-95f8-c29639a4d5d6",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[4]",
+            "added_cut": "# Cut discovered at gen 2, indiv 4\nmodel.cuts.add(model.x[4] <= 6)"
+          },
+          "fitness": 2.5,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "a649f9a9-dbd0-4fbd-b335-4a5bfe54cd93",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[5]",
+            "added_cut": "# Cut discovered at gen 2, indiv 5\nmodel.cuts.add(model.x[5] <= 7)"
+          },
+          "fitness": 2.808,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "c132658c-cdf7-4bc0-8dca-cf9003a21107",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[6]",
+            "added_cut": "# Cut discovered at gen 2, indiv 6\nmodel.cuts.add(model.x[6] <= 8)"
+          },
+          "fitness": 2.914,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "c6d712cc-971c-41b2-8026-69cc60964e29",
+          "chromosome": {
+            "idea": "Gen2: tighten bound on x[7]",
+            "added_cut": "# Cut discovered at gen 2, indiv 7\nmodel.cuts.add(model.x[7] <= 9)"
+          },
+          "fitness": 2.983,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        }
+      ],
+      2.983
+    ],
+    [
+      [
+        {
+          "id": "8c2a8b27-8260-4b10-bae1-0f0a00e144bd",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[0]",
+            "added_cut": "# Cut discovered at gen 3, indiv 0\nmodel.cuts.add(model.x[0] <= 3)"
+          },
+          "fitness": 3.127,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "89885275-508b-401b-a7bc-29dd125c6d72",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[1]",
+            "added_cut": "# Cut discovered at gen 3, indiv 1\nmodel.cuts.add(model.x[1] <= 4)"
+          },
+          "fitness": 3.512,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "d70adfc2-db42-4c10-8a68-865a8fa94f36",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[2]",
+            "added_cut": "# Cut discovered at gen 3, indiv 2\nmodel.cuts.add(model.x[2] <= 5)"
+          },
+          "fitness": 3.512,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "d94b2e75-9dc6-45cf-928d-a5ef765dbf76",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[3]",
+            "added_cut": "# Cut discovered at gen 3, indiv 3\nmodel.cuts.add(model.x[3] <= 6)"
+          },
+          "fitness": 3.692,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "2c7c7000-cd70-48d4-81f4-8ae38c8846a5",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[4]",
+            "added_cut": "# Cut discovered at gen 3, indiv 4\nmodel.cuts.add(model.x[4] <= 7)"
+          },
+          "fitness": 3.944,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "e5b90802-40c9-45cc-9545-3541c3006c68",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[5]",
+            "added_cut": "# Cut discovered at gen 3, indiv 5\nmodel.cuts.add(model.x[5] <= 8)"
+          },
+          "fitness": 3.514,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "009e1d07-f8ee-4386-9fa5-e9a3f62c2a84",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[6]",
+            "added_cut": "# Cut discovered at gen 3, indiv 6\nmodel.cuts.add(model.x[6] <= 9)"
+          },
+          "fitness": 3.661,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "5de49e87-842d-499c-91e4-60e967ef8d0f",
+          "chromosome": {
+            "idea": "Gen3: tighten bound on x[7]",
+            "added_cut": "# Cut discovered at gen 3, indiv 7\nmodel.cuts.add(model.x[7] <= 10)"
+          },
+          "fitness": 4.075,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        }
+      ],
+      4.075
+    ],
+    [
+      [
+        {
+          "id": "a82c4a2e-84ac-44d1-a4eb-620b9f3a3cbf",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[0]",
+            "added_cut": "# Cut discovered at gen 4, indiv 0\nmodel.cuts.add(model.x[0] <= 4)"
+          },
+          "fitness": 4.398,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "a884904a-f96a-4542-9b1a-293b89afff1f",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[1]",
+            "added_cut": "# Cut discovered at gen 4, indiv 1\nmodel.cuts.add(model.x[1] <= 5)"
+          },
+          "fitness": 4.568,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "47dfad12-9bc3-4733-b72a-a6caa666c09d",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[2]",
+            "added_cut": "# Cut discovered at gen 4, indiv 2\nmodel.cuts.add(model.x[2] <= 6)"
+          },
+          "fitness": 4.34,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "161215ac-67bd-4da4-902a-19b690c136ea",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[3]",
+            "added_cut": "# Cut discovered at gen 4, indiv 3\nmodel.cuts.add(model.x[3] <= 7)"
+          },
+          "fitness": 4.516,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "e446887a-b66c-4bee-93aa-eaa81837ef5a",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[4]",
+            "added_cut": "# Cut discovered at gen 4, indiv 4\nmodel.cuts.add(model.x[4] <= 8)"
+          },
+          "fitness": 4.829,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "422237d9-f572-41a3-acbc-4a9f5581b07e",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[5]",
+            "added_cut": "# Cut discovered at gen 4, indiv 5\nmodel.cuts.add(model.x[5] <= 9)"
+          },
+          "fitness": 5.065,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "df77ff7c-2871-49dc-b56b-0c203ebe8705",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[6]",
+            "added_cut": "# Cut discovered at gen 4, indiv 6\nmodel.cuts.add(model.x[6] <= 10)"
+          },
+          "fitness": 5.044,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "0acdab46-c9a2-4013-9890-122933173540",
+          "chromosome": {
+            "idea": "Gen4: tighten bound on x[7]",
+            "added_cut": "# Cut discovered at gen 4, indiv 7\nmodel.cuts.add(model.x[7] <= 11)"
+          },
+          "fitness": 4.806,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        }
+      ],
+      5.065
+    ],
+    [
+      [
+        {
+          "id": "499af964-325a-4930-8d1f-2832c43653d4",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[0]",
+            "added_cut": "# Cut discovered at gen 5, indiv 0\nmodel.cuts.add(model.x[0] <= 5)"
+          },
+          "fitness": 5.376,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "cc1254df-ef0e-44ca-82a7-75de5ae4de31",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[1]",
+            "added_cut": "# Cut discovered at gen 5, indiv 1\nmodel.cuts.add(model.x[1] <= 6)"
+          },
+          "fitness": 5.527,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "364d45c9-831a-49e9-b6cb-8d0f3bfa0e04",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[2]",
+            "added_cut": "# Cut discovered at gen 5, indiv 2\nmodel.cuts.add(model.x[2] <= 7)"
+          },
+          "fitness": 5.75,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "c67a8991-85e8-4eb4-9e87-4896b3de8067",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[3]",
+            "added_cut": "# Cut discovered at gen 5, indiv 3\nmodel.cuts.add(model.x[3] <= 8)"
+          },
+          "fitness": 5.88,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "5fa834d3-342f-4e10-b0fd-85a2ab4af8b0",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[4]",
+            "added_cut": "# Cut discovered at gen 5, indiv 4\nmodel.cuts.add(model.x[4] <= 9)"
+          },
+          "fitness": 5.936,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "eb93cb13-53be-4762-ace4-0cd208467d12",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[5]",
+            "added_cut": "# Cut discovered at gen 5, indiv 5\nmodel.cuts.add(model.x[5] <= 10)"
+          },
+          "fitness": 5.519,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        },
+        {
+          "id": "dd009dcc-ce71-44e2-882e-5da5173d7f22",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[6]",
+            "added_cut": "# Cut discovered at gen 5, indiv 6\nmodel.cuts.add(model.x[6] <= 11)"
+          },
+          "fitness": 6.066,
+          "solver_reports": [],
+          "generator": "mutation",
+          "parents_id": null
+        },
+        {
+          "id": "357a5872-8b55-47cd-a1c6-5b348326f926",
+          "chromosome": {
+            "idea": "Gen5: tighten bound on x[7]",
+            "added_cut": "# Cut discovered at gen 5, indiv 7\nmodel.cuts.add(model.x[7] <= 12)"
+          },
+          "fitness": 6.162,
+          "solver_reports": [],
+          "generator": "crossover",
+          "parents_id": null
+        }
+      ],
+      6.162
+    ]
+  ],
+  "best_fitness": 7.079,
+  "best_indiv": {
+    "id": "54b13b1c-0674-4b09-90e9-97e65ada84f7",
+    "chromosome": {
+      "idea": "Gen6: tighten bound on x[4]",
+      "added_cut": "# Cut discovered at gen 6, indiv 4\nmodel.cuts.add(model.x[4] <= 10)"
+    },
+    "fitness": 7.079,
+    "solver_reports": [],
+    "generator": "mutation",
+    "parents_id": null
+  },
+  "state": 6
+}
