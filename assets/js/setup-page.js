@@ -2,19 +2,19 @@ import { attachParticles } from "./particles.js";
 import { qs, qsa, saveConfig, uid } from "./utils.js";
 
 const ACTIONS = [
-  { id: "add_cuts", label: "Add Valid Inequalities / Cuts", desc: "Inject learned cuts into the model", enabled: true, icon: "✂️" },
-  { id: "warm_start", label: "Warm-start / MIP Starts", desc: "Seed the solver with good primal solutions", enabled: false, icon: "🔥" },
-  { id: "param_tuning", label: "Parameter Tuning", desc: "Tune solver parameters for your objective", enabled: false, icon: "🎛️" },
-  { id: "reformulate", label: "Reformulation", desc: "Change formulation (extended vars, perspective, etc.)", enabled: false, icon: "🧩" },
-  { id: "branching", label: "Branching / Search Control", desc: "Custom branching priorities & callbacks", enabled: false, icon: "🌳" },
-  { id: "heuristics", label: "Primal Heuristics", desc: "Add or improve heuristics to find incumbents", enabled: false, icon: "⚡" }
+  { id: "add_cuts", label: "Add Valid Inequalities / Cuts", desc: "Inject learned cuts into the model", enabled: true },
+  { id: "warm_start", label: "Warm-start / MIP Starts", desc: "Seed the solver with good primal solutions", enabled: false },
+  { id: "param_tuning", label: "Parameter Tuning", desc: "Tune solver parameters for your objective", enabled: false },
+  { id: "reformulate", label: "Reformulation", desc: "Change formulation (extended vars, perspective, etc.)", enabled: false },
+  { id: "branching", label: "Branching / Search Control", desc: "Custom branching priorities & callbacks", enabled: false },
+  { id: "heuristics", label: "Primal Heuristics", desc: "Add or improve heuristics to find incumbents", enabled: false }
 ];
 
 const TARGETS = [
   { id: "gap_within_time", label: "Reduce gap within a time budget", params: ["time_limit_s", "target_gap"] },
   { id: "time_to_gap", label: "Reach a target gap as fast as possible", params: ["target_gap", "time_cap_s"] },
   { id: "reduce_nodes", label: "Reduce nodes to reach a fixed gap", params: ["target_gap", "node_cap"] },
-  { id: "reduce_pdi", label: "Reduce Primal–Dual Integral (PDI)", params: ["time_limit_s"] },
+  { id: "reduce_pdi", label: "Reduce Primal-Dual Integral (PDI)", params: ["time_limit_s"] },
   { id: "improve_bound", label: "Improve best bound quickly", params: ["time_limit_s"] },
   { id: "custom", label: "Custom metric (advanced)", params: ["custom_metric_name"] }
 ];
@@ -39,7 +39,7 @@ function makeActionCard(a){
       <input type="checkbox" class="mt-1 accent-indigo-400" value="${a.id}" ${a.enabled ? "checked" : "disabled"} />
       <div class="flex-1">
         <div class="flex items-center justify-between gap-3">
-          <div class="font-semibold text-sm">${a.icon} ${a.label}</div>
+          <div class="font-semibold text-sm">${a.label}</div>
           ${badge}
         </div>
         <div class="text-xs text-white/60 mt-1">${a.desc}</div>
@@ -83,9 +83,6 @@ function renderTargetParams(targetId){
     <div class="grid md:grid-cols-3 gap-3">
       ${fields.join("")}
     </div>
-    <div class="text-xs text-white/50 mt-2">
-      The UI is general-purpose: metrics/actions can expand later without changing the overall view.
-    </div>
   `;
 }
 
@@ -113,7 +110,7 @@ async function main(){
   // Load problems metadata
   const meta = await fetchJSON("./data/problems.json");
   const problemSelect = qs("#problemSelect");
-  problemSelect.innerHTML = meta.problems.map(p => `<option value="${p.id}">${p.name} — ${p.tagline}</option>`).join("");
+  problemSelect.innerHTML = meta.problems.map(p => `<option value="${p.id}">${p.name} - ${p.tagline}</option>`).join("");
 
   // CodeMirror
   const textarea = qs("#codeEditor");

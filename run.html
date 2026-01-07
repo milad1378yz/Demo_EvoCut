@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EvoCut • Replay</title>
+  <title>EvoCut Replay</title>
 
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,11 +30,11 @@
       <div>
         <div class="badge mb-3"><span class="pulse-dot"></span> live replay</div>
         <h1 id="runTitle" class="text-2xl md:text-3xl font-extrabold tracking-tight">EvoCut Replay</h1>
-        <div id="runMeta" class="text-xs text-white/55 mt-2">—</div>
+        <div id="runMeta" class="text-xs text-white/55 mt-2"></div>
       </div>
 
       <div class="flex items-center gap-3">
-        <a href="./index.html" class="btn-outline px-4 py-2 rounded-xl text-sm">← Setup</a>
+        <a href="./index.html" class="btn-outline px-4 py-2 rounded-xl text-sm">Back to Setup</a>
         <button id="replayBtn" class="btn-primary px-4 py-2 rounded-xl text-sm font-semibold">Replay</button>
       </div>
     </div>
@@ -56,7 +56,6 @@
         <div class="flex items-start justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold">Evolution timeline</h2>
-            <p class="text-sm text-white/60 mt-1">Each generation appears with a delay to mimic real-time evolution.</p>
           </div>
           <div class="badge">populations</div>
         </div>
@@ -69,32 +68,28 @@
         <div class="glass rounded-3xl p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 class="text-lg font-bold">Model delta (skeleton → injected cut)</h2>
-              <p class="text-sm text-white/60 mt-1">We show a line diff from the previous generation’s code.</p>
+              <h2 class="text-lg font-bold">Model delta (skeleton -> injected cut)</h2>
             </div>
             <div class="badge">diff view</div>
           </div>
 
           <div id="diffBox" class="codebox mt-4"></div>
 
-          <div class="mt-3 text-xs text-white/50">
-            Insert location is the marker line: <code class="text-white/70"># &lt;EVOCUT_INSERT_CUT_HERE&gt;</code>
-          </div>
         </div>
 
         <!-- KPIs + Best idea -->
         <div class="grid md:grid-cols-3 gap-4">
           <div class="kpi">
             <div class="label">Best fitness</div>
-            <div id="kpiBest" class="value" data-raw="0">—</div>
+            <div id="kpiBest" class="value" data-raw="0">-</div>
           </div>
           <div class="kpi">
             <div class="label">Mean fitness</div>
-            <div id="kpiMean" class="value" data-raw="0">—</div>
+            <div id="kpiMean" class="value" data-raw="0">-</div>
           </div>
           <div class="kpi">
             <div class="label">Std dev</div>
-            <div id="kpiStd" class="value" data-raw="0">—</div>
+            <div id="kpiStd" class="value" data-raw="0">-</div>
           </div>
         </div>
 
@@ -102,7 +97,7 @@
           <div class="flex items-start justify-between gap-4">
             <div>
               <h2 class="text-lg font-bold">Best individual (current gen)</h2>
-              <p id="bestIdea" class="text-sm text-white/70 mt-1">—</p>
+              <p id="bestIdea" class="text-sm text-white/70 mt-1">-</p>
             </div>
             <div class="badge">idea</div>
           </div>
@@ -110,12 +105,12 @@
           <div class="grid md:grid-cols-2 gap-4 mt-4">
             <div class="codebox">
               <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Inserted cut snippet</div>
-              <pre id="cutSnippet" class="text-xs leading-5 p-4 overflow-auto mini-scroll">—</pre>
+              <pre id="cutSnippet" class="text-xs leading-5 p-4 overflow-auto mini-scroll"></pre>
             </div>
 
             <div class="codebox">
               <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Top individuals (preview)</div>
-              <div id="popTable" class="p-4 overflow-auto mini-scroll max-h-[240px]">—</div>
+              <div id="popTable" class="p-4 overflow-auto mini-scroll max-h-[240px]"></div>
             </div>
           </div>
         </div>
@@ -125,7 +120,7 @@
           <div class="flex items-start justify-between gap-4">
             <div>
               <h2 class="text-lg font-bold">Fitness trajectory</h2>
-              <p class="text-sm text-white/60 mt-1">Best + mean with σ band (shaded).</p>
+              <p class="text-sm text-white/60 mt-1">Best + mean with 1-sigma band (shaded).</p>
             </div>
             <div class="badge">live chart</div>
           </div>
@@ -141,7 +136,7 @@
             <div>
               <h2 class="text-xl font-extrabold tracking-tight">Final improvement</h2>
               <p class="text-sm text-white/60 mt-1">
-                Baseline best fitness: <span id="baselineBest" class="font-semibold text-white/80">—</span>
+                Baseline best fitness: <span id="baselineBest" class="font-semibold text-white/80">-</span>
               </p>
             </div>
             <div class="badge">result</div>
@@ -150,21 +145,18 @@
           <div class="grid md:grid-cols-3 gap-4 mt-5">
             <div class="kpi">
               <div class="label">Final best fitness</div>
-              <div id="finalBest" class="value">—</div>
+              <div id="finalBest" class="value">-</div>
             </div>
             <div class="kpi">
               <div class="label">Absolute improvement</div>
-              <div id="finalDelta" class="value">—</div>
+              <div id="finalDelta" class="value">-</div>
             </div>
             <div class="kpi">
               <div class="label">Relative improvement</div>
-              <div id="finalPct" class="value">—</div>
+              <div id="finalPct" class="value">-</div>
             </div>
           </div>
 
-          <div class="text-xs text-white/50 mt-4">
-            Next step: plug a backend runner (EvoCut) into the same UI and stream updates instead of replaying JSON.
-          </div>
         </div>
 
       </section>
@@ -172,9 +164,6 @@
 
     <div class="divider my-10"></div>
 
-    <footer class="text-xs text-white/45">
-      Replay is simulated from completed JSON files. For a real-time run, replace the fetch() with a websocket/SSE stream.
-    </footer>
   </div>
 
   <script type="module" src="./assets/js/run-page.js"></script>

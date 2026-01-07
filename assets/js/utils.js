@@ -5,7 +5,7 @@ export function clamp(v, lo, hi){
 }
 
 export function formatNumber(v, digits=3){
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  if (v === null || v === undefined || Number.isNaN(v)) return "-";
   const n = Number(v);
   if (!Number.isFinite(n)) return String(v);
   // Use compact format for large numbers
@@ -43,7 +43,7 @@ export function uid(prefix="run"){
 }
 
 export function percent(v){
-  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  if (v === null || v === undefined || Number.isNaN(v)) return "-";
   return `${(Number(v)*100).toFixed(1)}%`;
 }
 

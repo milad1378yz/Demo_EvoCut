@@ -53,13 +53,13 @@ function animateKPI(el, value){
 function shortCut(cut, maxLines=6){
   const lines = String(cut ?? "").split("\n");
   const head = lines.slice(0, maxLines).join("\n");
-  return lines.length > maxLines ? head + "\n# …" : head;
+  return lines.length > maxLines ? head + "\n# ..." : head;
 }
 
 function renderPopulationTable(pop){
   const sorted = [...(pop ?? [])].sort((a,b) => Number(b.fitness ?? 0) - Number(a.fitness ?? 0)).slice(0, 6);
   const rows = sorted.map((ind, i) => {
-    const idea = (extractIdea(ind) || "—").slice(0, 60);
+    const idea = (extractIdea(ind) || "-").slice(0, 60);
     const fit = formatNumber(ind.fitness, 3);
     return `
       <tr class="border-b border-white/10">
@@ -95,8 +95,8 @@ async function main(){
   }
 
   // Header
-  qs("#runTitle").textContent = `${cfg.problem?.name ?? cfg.problem?.id} • EvoCut Replay`;
-  qs("#runMeta").textContent = `Run ${cfg.runId} • target: ${cfg.objective?.target ?? "—"} • max generations: ${cfg.evolution?.maxGenerations ?? "—"}`;
+  qs("#runTitle").textContent = `${cfg.problem?.name ?? cfg.problem?.id} - EvoCut Replay`;
+  qs("#runMeta").textContent = `Run ${cfg.runId} | target: ${cfg.objective?.target ?? "-"} | max generations: ${cfg.evolution?.maxGenerations ?? "-"}`;
 
   // Fetch JSON run
   const problemId = cfg.problem?.id;
@@ -127,7 +127,7 @@ async function main(){
   qs("#baselineBest").textContent = formatNumber(baselineBest, 3);
 
   // Replay
-  const ms = Number(cfg.replay?.msPerGeneration ?? 650);
+  const ms = Number(cfg.replay?.msPerGeneration ?? 1100);
 
   for (let i=0; i<gens.length; i++){
     const g = gens[i];
@@ -156,7 +156,7 @@ async function main(){
     animateKPI(qs("#kpiStd"), g.stdFitness ?? 0);
 
     // Idea + cut snippet
-    animateText(qs("#bestIdea"), idea || "—");
+    animateText(qs("#bestIdea"), idea || "-");
     qs("#cutSnippet").textContent = shortCut(cut || "# (no cut)", 10);
 
     // Population preview
@@ -182,14 +182,14 @@ async function main(){
 
   qs("#finalBest").textContent = formatNumber(finalBest, 3);
   qs("#finalDelta").textContent = `${absImprovement >= 0 ? "+" : ""}${formatNumber(absImprovement, 3)}`;
-  qs("#finalPct").textContent = baselineBest !== 0 ? `${(pct*100).toFixed(1)}%` : "—";
+  qs("#finalPct").textContent = baselineBest !== 0 ? `${(pct*100).toFixed(1)}%` : "-";
 
   qs("#summary").classList.remove("hidden");
   if (window.gsap){
     gsap.fromTo("#summary", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power2.out" });
   }
 
-  // “Replay” button
+  // Replay button
   qs("#replayBtn").addEventListener("click", async () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     // lightweight restart: reload the page

@@ -14,7 +14,7 @@ export function createFitnessChart(canvas){
     datasets: [
       // Upper first
       {
-        label: "Mean + σ",
+        label: "Mean + std dev",
         data: [],
         borderColor: "rgba(255,255,255,0)",
         backgroundColor: "rgba(255,255,255,0)",
@@ -24,7 +24,7 @@ export function createFitnessChart(canvas){
       },
       // Lower fills to previous dataset (upper) => shaded band
       {
-        label: "Mean ± σ",
+        label: "Mean +/- std dev",
         data: [],
         borderColor: "rgba(255,255,255,0)",
         backgroundColor: "rgba(255,255,255,0.08)",
