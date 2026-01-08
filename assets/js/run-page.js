@@ -174,23 +174,27 @@ async function main(){
   // Chart
   const { appendPoint } = createFitnessChart(qs("#fitnessChart"));
 
-  // Skeleton: prefer run JSON code, fallback to config.
+  // Skeleton: derive from full_code by removing cuts to ensure clean skeleton
   const configCode = String(cfg.model?.code ?? "");
-  const runSkeleton = run?.skeleton || run?.base_code || run?.model_code || "";
   const bestRunInd = run?.best_indiv || run?.bestIndiv;
   const codeSource = findCodeSourceFromGens(gens) || bestRunInd;
-  const firstGenBest = gens[0]?.bestIndiv ?? getBestIndividual(gens[0]?.population);
   const initialFullCode = extractFullCode(codeSource);
-  const initialCut = extractCut(codeSource) || extractCut(firstGenBest);
-  const skeleton = String(runSkeleton).trimEnd()
-    || deriveSkeleton(initialFullCode, initialCut)
-    || configCode;
+  const initialCut = extractCut(codeSource);
+
+  // Derive skeleton by removing any cuts from the full code
+  let skeleton = deriveSkeleton(initialFullCode, initialCut);
+
+  // Fallback to run JSON skeleton fields if derivation failed
+  if (!skeleton) {
+    skeleton = run?.skeleton || run?.base_code || run?.model_code || configCode;
+  }
 
   const skeletonEl = qs("#skeletonCode");
-  if (skeletonEl) skeletonEl.textContent = skeleton || "# (skeleton missing in run JSON)";
+  if (skeletonEl) skeletonEl.textContent = String(skeleton).trimEnd() || "# (skeleton missing in run JSON)";
 
+  // Start with no cut displayed - it will be updated during replay
   const cutEl = qs("#cutCode");
-  if (cutEl) cutEl.textContent = initialCut || "# (no cut)";
+  if (cutEl) cutEl.textContent = "# (waiting for replay to start...)";
 
   // Baseline metrics
   const baselineBest = gens[0]?.bestFitness ?? gens[0]?.meanFitness ?? 0;

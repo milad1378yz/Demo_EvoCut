@@ -51,7 +51,7 @@ export function attachParticles(canvas){
       ctx.fill();
     }
 
-    // occasional links for extra “fancy”
+    // occasional links for extra depth
     ctx.lineWidth = 1;
     for (let i=0;i<parts.length;i++){
       for (let j=i+1;j<parts.length;j++){

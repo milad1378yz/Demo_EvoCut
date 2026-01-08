@@ -95,18 +95,14 @@ function pickCodeSourceFromPopulation(pop){
 }
 
 function getSkeletonFromRun(run){
-  const direct = run?.skeleton || run?.base_code || run?.model_code || "";
-  if (direct){
-    return { skeleton: String(direct).trimEnd(), hint: "Loaded skeleton from run JSON" };
-  }
-
+  // Try to find skeleton by deriving from full_code and removing cuts
   const bestIndiv = run?.best_indiv || run?.bestIndiv;
   if (bestIndiv?.chromosome?.full_code){
     const fullCode = bestIndiv.chromosome.full_code;
     const cut = bestIndiv.chromosome.added_cut ?? "";
     const skeleton = deriveSkeleton(String(fullCode), cut);
     if (skeleton){
-      return { skeleton, hint: "Loaded skeleton from best_indiv full_code" };
+      return { skeleton, hint: "Loaded skeleton from best_indiv (cuts removed)" };
     }
   }
 
@@ -126,8 +122,14 @@ function getSkeletonFromRun(run){
     const cut = source?.chromosome?.added_cut ?? "";
     const skeleton = deriveSkeleton(String(fullCode), cut);
     if (skeleton){
-      return { skeleton, hint: "Loaded skeleton from population full_code" };
+      return { skeleton, hint: "Loaded skeleton from population (cuts removed)" };
     }
+  }
+
+  // Fallback to direct skeleton fields only if derivation failed
+  const direct = run?.skeleton || run?.base_code || run?.model_code || "";
+  if (direct){
+    return { skeleton: String(direct).trimEnd(), hint: "Loaded skeleton from run JSON" };
   }
 
   return { skeleton: "", hint: "Skeleton missing in run JSON" };
@@ -204,13 +206,13 @@ async function main(){
   const canvas = qs("#bgParticles");
   attachParticles(canvas);
 
-  // Fancy entrance
+  // Entrance animation
   if (window.gsap){
     gsap.fromTo(".enter", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.05, ease: "power2.out" });
   }
 
-  // Load problems metadata
-  const meta = await fetchJSON("./data/problems.json");
+  // Load problems metadata (with cache-busting to avoid stale data)
+  const meta = await fetchJSON("./data/problems.json?v=" + Date.now());
   const problemSelect = qs("#problemSelect");
   problemSelect.innerHTML = meta.problems.map(p => `<option value="${p.id}">${p.name} - ${p.tagline}</option>`).join("");
 

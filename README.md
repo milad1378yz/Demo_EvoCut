@@ -1,4 +1,4 @@
-# EvoCut Fancy HTML Demo (static)
+# EvoCut HTML Demo (static)
 
 This is a **static** (no backend required) demo UI for EvoCut-style runs.
 
