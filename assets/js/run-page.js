@@ -1,8 +1,7 @@
 import { attachParticles } from "./particles.js";
-import { qs, qsa, sleep, formatNumber, loadConfig } from "./utils.js";
-import { buildGenerations, extractCut, extractIdea, getBestIndividual } from "./data/population.js";
+import { qs, sleep, formatNumber, loadConfig } from "./utils.js";
+import { buildGenerations, extractCut, extractFullCode, extractIdea, getBestIndividual } from "./data/population.js";
 import { createFitnessChart } from "./ui/chart.js";
-import { injectCut, renderLineDiff } from "./ui/diff.js";
 import { renderTimeline, markRunning, markDone } from "./ui/timeline.js";
 
 async function fetchJSON(path){
@@ -54,6 +53,65 @@ function shortCut(cut, maxLines=6){
   const lines = String(cut ?? "").split("\n");
   const head = lines.slice(0, maxLines).join("\n");
   return lines.length > maxLines ? head + "\n# ..." : head;
+}
+
+function deriveSkeleton(fullCode, cutText){
+  if (!fullCode) return "";
+  const cut = String(cutText ?? "").replace(/\r\n/g, "\n").trim();
+  const normalizedFull = String(fullCode).replace(/\r\n/g, "\n");
+  if (!cut) return normalizedFull.trimEnd();
+
+  const idx = normalizedFull.indexOf(cut);
+  if (idx !== -1){
+    const before = normalizedFull.slice(0, idx);
+    const after = normalizedFull.slice(idx + cut.length);
+    return (before + after).replace(/\n{3,}/g, "\n\n").trimEnd();
+  }
+
+  const fullLines = normalizedFull.split("\n");
+  const cutLines = cut.split("\n").map(line => line.trim()).filter(Boolean);
+  if (cutLines.length === 0) return normalizedFull.trimEnd();
+
+  for (let i = 0; i < fullLines.length; i++){
+    if (fullLines[i].trim() !== cutLines[0]) continue;
+    let j = 0;
+    let k = i;
+    while (j < cutLines.length && k < fullLines.length){
+      const current = fullLines[k].trim();
+      if (current === cutLines[j]){
+        j++;
+        k++;
+        continue;
+      }
+      if (current === ""){
+        k++;
+        continue;
+      }
+      break;
+    }
+    if (j === cutLines.length){
+      const kept = fullLines.slice(0, i).concat(fullLines.slice(k));
+      return kept.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+    }
+  }
+
+  const cutSet = new Set(cutLines);
+  const filtered = fullLines.filter(line => {
+    const trimmed = line.trim();
+    return trimmed === "" || !cutSet.has(trimmed);
+  });
+  return filtered.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
+function findCodeSourceFromGens(gens){
+  for (const g of gens){
+    const pop = g?.population ?? [];
+    const best = g?.bestIndiv ?? getBestIndividual(pop);
+    if (best?.chromosome?.full_code) return best;
+    const candidate = pop.find(ind => ind?.chromosome?.full_code);
+    if (candidate) return candidate;
+  }
+  return null;
 }
 
 function renderPopulationTable(pop){
@@ -116,11 +174,23 @@ async function main(){
   // Chart
   const { appendPoint } = createFitnessChart(qs("#fitnessChart"));
 
-  // Code baseline: use the edited code from setup page (general-purpose)
-  const baseCode = String(cfg.model?.code ?? "");
+  // Skeleton: prefer run JSON code, fallback to config.
+  const configCode = String(cfg.model?.code ?? "");
+  const runSkeleton = run?.skeleton || run?.base_code || run?.model_code || "";
+  const bestRunInd = run?.best_indiv || run?.bestIndiv;
+  const codeSource = findCodeSourceFromGens(gens) || bestRunInd;
+  const firstGenBest = gens[0]?.bestIndiv ?? getBestIndividual(gens[0]?.population);
+  const initialFullCode = extractFullCode(codeSource);
+  const initialCut = extractCut(codeSource) || extractCut(firstGenBest);
+  const skeleton = String(runSkeleton).trimEnd()
+    || deriveSkeleton(initialFullCode, initialCut)
+    || configCode;
 
-  let prevCode = baseCode;
-  setHTML(qs("#diffBox"), renderLineDiff("", baseCode));
+  const skeletonEl = qs("#skeletonCode");
+  if (skeletonEl) skeletonEl.textContent = skeleton || "# (skeleton missing in run JSON)";
+
+  const cutEl = qs("#cutCode");
+  if (cutEl) cutEl.textContent = initialCut || "# (no cut)";
 
   // Baseline metrics
   const baselineBest = gens[0]?.bestFitness ?? gens[0]?.meanFitness ?? 0;
@@ -138,17 +208,12 @@ async function main(){
     const cut = extractCut(bestInd);
     const idea = extractIdea(bestInd);
 
-    // Update code + diff
-    const codeWithCut = injectCut(baseCode, cut);
-    const diffHTML = renderLineDiff(prevCode, codeWithCut);
-    setHTML(qs("#diffBox"), diffHTML);
-
-    // Animate quick flash on insertion
-    if (window.gsap){
-      gsap.fromTo("#diffBox", { opacity: 0.65 }, { opacity: 1, duration: 0.22, ease: "power1.out" });
+    if (cutEl){
+      cutEl.textContent = cut || "# (no cut)";
+      if (window.gsap){
+        gsap.fromTo(cutEl, { opacity: 0.6 }, { opacity: 1, duration: 0.22, ease: "power1.out" });
+      }
     }
-
-    prevCode = codeWithCut;
 
     // KPIs
     animateKPI(qs("#kpiBest"), g.bestFitness ?? 0);

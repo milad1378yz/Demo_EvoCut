@@ -50,73 +50,33 @@
     </div>
 
     <!-- Main -->
-    <div class="grid lg:grid-cols-12 gap-6">
-      <!-- Timeline -->
-      <aside class="lg:col-span-4 glass rounded-3xl p-5">
-        <div class="flex items-start justify-between gap-4">
-          <div>
-            <h2 class="text-lg font-bold">Evolution timeline</h2>
-          </div>
-          <div class="badge">populations</div>
-        </div>
-
-        <div id="timeline" class="mt-4 max-h-[620px] overflow-auto mini-scroll pr-1"></div>
-      </aside>
-
-      <!-- Diff + Code -->
-      <section class="lg:col-span-8 space-y-6">
-        <div class="glass rounded-3xl p-5">
+    <div class="space-y-6">
+      <div class="grid lg:grid-cols-12 gap-6">
+        <!-- Model data -->
+        <section class="lg:col-span-7 glass rounded-3xl p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 class="text-lg font-bold">Model delta (skeleton -> injected cut)</h2>
+              <h2 class="text-lg font-bold">Model data</h2>
+              <p class="text-sm text-white/60 mt-1">Skeleton plus the new cut for the current generation.</p>
             </div>
-            <div class="badge">diff view</div>
-          </div>
-
-          <div id="diffBox" class="codebox mt-4"></div>
-
-        </div>
-
-        <!-- KPIs + Best idea -->
-        <div class="grid md:grid-cols-3 gap-4">
-          <div class="kpi">
-            <div class="label">Best fitness</div>
-            <div id="kpiBest" class="value" data-raw="0">-</div>
-          </div>
-          <div class="kpi">
-            <div class="label">Mean fitness</div>
-            <div id="kpiMean" class="value" data-raw="0">-</div>
-          </div>
-          <div class="kpi">
-            <div class="label">Std dev</div>
-            <div id="kpiStd" class="value" data-raw="0">-</div>
-          </div>
-        </div>
-
-        <div class="glass rounded-3xl p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <h2 class="text-lg font-bold">Best individual (current gen)</h2>
-              <p id="bestIdea" class="text-sm text-white/70 mt-1">-</p>
-            </div>
-            <div class="badge">idea</div>
+            <div class="badge">skeleton + cut</div>
           </div>
 
           <div class="grid md:grid-cols-2 gap-4 mt-4">
             <div class="codebox">
-              <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Inserted cut snippet</div>
-              <pre id="cutSnippet" class="text-xs leading-5 p-4 overflow-auto mini-scroll"></pre>
+              <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Skeleton</div>
+              <pre id="skeletonCode" class="text-xs leading-5 p-4 overflow-auto mini-scroll"></pre>
             </div>
 
-            <div class="codebox">
-              <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Top individuals (preview)</div>
-              <div id="popTable" class="p-4 overflow-auto mini-scroll max-h-[240px]"></div>
+            <div class="codebox cutbox">
+              <div class="cut-title px-4 py-2 text-xs">New cut</div>
+              <pre id="cutCode" class="text-xs leading-5 p-4 overflow-auto mini-scroll"></pre>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Chart -->
-        <div class="glass rounded-3xl p-5">
+        <section class="lg:col-span-5 glass rounded-3xl p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
               <h2 class="text-lg font-bold">Fitness trajectory</h2>
@@ -125,41 +85,89 @@
             <div class="badge">live chart</div>
           </div>
 
-          <div class="mt-4 h-[320px]">
+          <div class="mt-4 h-[360px]">
             <canvas id="fitnessChart"></canvas>
           </div>
+        </section>
+      </div>
+
+      <!-- KPIs + Best idea -->
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="kpi">
+          <div class="label">Best fitness</div>
+          <div id="kpiBest" class="value" data-raw="0">-</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Mean fitness</div>
+          <div id="kpiMean" class="value" data-raw="0">-</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Std dev</div>
+          <div id="kpiStd" class="value" data-raw="0">-</div>
+        </div>
+      </div>
+
+      <div class="glass rounded-3xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold">Best individual (current gen)</h2>
+            <p id="bestIdea" class="text-sm text-white/70 mt-1">-</p>
+          </div>
+          <div class="badge">idea</div>
         </div>
 
-        <!-- Final summary -->
-        <div id="summary" class="hidden glass rounded-3xl p-6">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <h2 class="text-xl font-extrabold tracking-tight">Final improvement</h2>
-              <p class="text-sm text-white/60 mt-1">
-                Baseline best fitness: <span id="baselineBest" class="font-semibold text-white/80">-</span>
-              </p>
-            </div>
-            <div class="badge">result</div>
+        <div class="grid md:grid-cols-2 gap-4 mt-4">
+          <div class="codebox">
+            <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Cut snippet</div>
+            <pre id="cutSnippet" class="text-xs leading-5 p-4 overflow-auto mini-scroll"></pre>
           </div>
 
-          <div class="grid md:grid-cols-3 gap-4 mt-5">
-            <div class="kpi">
-              <div class="label">Final best fitness</div>
-              <div id="finalBest" class="value">-</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Absolute improvement</div>
-              <div id="finalDelta" class="value">-</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Relative improvement</div>
-              <div id="finalPct" class="value">-</div>
-            </div>
+          <div class="codebox">
+            <div class="px-4 py-2 text-xs text-white/60 border-b border-white/10">Top individuals (preview)</div>
+            <div id="popTable" class="p-4 overflow-auto mini-scroll max-h-[240px]"></div>
           </div>
+        </div>
+      </div>
 
+      <!-- Final summary -->
+      <div id="summary" class="hidden glass rounded-3xl p-6">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-extrabold tracking-tight">Final improvement</h2>
+            <p class="text-sm text-white/60 mt-1">
+              Baseline best fitness: <span id="baselineBest" class="font-semibold text-white/80">-</span>
+            </p>
+          </div>
+          <div class="badge">result</div>
         </div>
 
-      </section>
+        <div class="grid md:grid-cols-3 gap-4 mt-5">
+          <div class="kpi">
+            <div class="label">Final best fitness</div>
+            <div id="finalBest" class="value">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Absolute improvement</div>
+            <div id="finalDelta" class="value">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Relative improvement</div>
+            <div id="finalPct" class="value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <aside class="glass rounded-3xl p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold">Evolution timeline</h2>
+          </div>
+          <div class="badge">populations</div>
+        </div>
+
+        <div id="timeline" class="mt-4 max-h-[520px] overflow-auto mini-scroll pr-1"></div>
+      </aside>
     </div>
 
     <div class="divider my-10"></div>

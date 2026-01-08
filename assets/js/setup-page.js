@@ -31,6 +31,108 @@ async function fetchText(path){
   return await res.text();
 }
 
+function normalizeCutText(cut){
+  if (!cut) return "";
+  return String(cut).replace(/\r\n/g, "\n").trim();
+}
+
+function deriveSkeleton(fullCode, cutText){
+  if (!fullCode) return "";
+  const cut = normalizeCutText(cutText);
+  const normalizedFull = String(fullCode).replace(/\r\n/g, "\n");
+  if (!cut) return normalizedFull.trimEnd();
+
+  const idx = normalizedFull.indexOf(cut);
+  if (idx !== -1){
+    const before = normalizedFull.slice(0, idx);
+    const after = normalizedFull.slice(idx + cut.length);
+    return (before + after).replace(/\n{3,}/g, "\n\n").trimEnd();
+  }
+
+  const fullLines = normalizedFull.split("\n");
+  const cutLines = cut.split("\n").map(line => line.trim()).filter(Boolean);
+  if (cutLines.length === 0) return normalizedFull.trimEnd();
+
+  for (let i = 0; i < fullLines.length; i++){
+    if (fullLines[i].trim() !== cutLines[0]) continue;
+    let j = 0;
+    let k = i;
+    while (j < cutLines.length && k < fullLines.length){
+      const current = fullLines[k].trim();
+      if (current === cutLines[j]){
+        j++;
+        k++;
+        continue;
+      }
+      if (current === ""){
+        k++;
+        continue;
+      }
+      break;
+    }
+    if (j === cutLines.length){
+      const kept = fullLines.slice(0, i).concat(fullLines.slice(k));
+      return kept.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+    }
+  }
+
+  const cutSet = new Set(cutLines);
+  const filtered = fullLines.filter(line => {
+    const trimmed = line.trim();
+    return trimmed === "" || !cutSet.has(trimmed);
+  });
+  return filtered.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
+function pickCodeSourceFromPopulation(pop){
+  if (!Array.isArray(pop) || pop.length === 0) return null;
+  let best = pop[0];
+  for (const ind of pop){
+    if (Number(ind?.fitness ?? -Infinity) > Number(best?.fitness ?? -Infinity)) best = ind;
+  }
+  if (best?.chromosome?.full_code) return best;
+  return pop.find(ind => ind?.chromosome?.full_code) ?? null;
+}
+
+function getSkeletonFromRun(run){
+  const direct = run?.skeleton || run?.base_code || run?.model_code || "";
+  if (direct){
+    return { skeleton: String(direct).trimEnd(), hint: "Loaded skeleton from run JSON" };
+  }
+
+  const bestIndiv = run?.best_indiv || run?.bestIndiv;
+  if (bestIndiv?.chromosome?.full_code){
+    const fullCode = bestIndiv.chromosome.full_code;
+    const cut = bestIndiv.chromosome.added_cut ?? "";
+    const skeleton = deriveSkeleton(String(fullCode), cut);
+    if (skeleton){
+      return { skeleton, hint: "Loaded skeleton from best_indiv full_code" };
+    }
+  }
+
+  const pools = [];
+  if (Array.isArray(run?.current_population)) pools.push(run.current_population);
+  if (Array.isArray(run?.prev_populations)){
+    for (let i = run.prev_populations.length - 1; i >= 0; i--){
+      const pop = run.prev_populations[i]?.[0];
+      if (Array.isArray(pop) && pop.length) pools.push(pop);
+    }
+  }
+
+  for (const pop of pools){
+    const source = pickCodeSourceFromPopulation(pop);
+    if (!source) continue;
+    const fullCode = source?.chromosome?.full_code ?? "";
+    const cut = source?.chromosome?.added_cut ?? "";
+    const skeleton = deriveSkeleton(String(fullCode), cut);
+    if (skeleton){
+      return { skeleton, hint: "Loaded skeleton from population full_code" };
+    }
+  }
+
+  return { skeleton: "", hint: "Skeleton missing in run JSON" };
+}
+
 function makeActionCard(a){
   const disabledCls = a.enabled ? "" : "opacity-50 cursor-not-allowed";
   const badge = a.enabled ? `<span class="badge">enabled</span>` : `<span class="badge">coming soon</span>`;
@@ -124,19 +226,40 @@ async function main(){
   });
   cm.setSize("100%", "420px");
 
-  // Load first template
-  async function loadTemplate(problemId){
+  // Load skeleton from run JSON
+  async function loadSkeleton(problemId){
     const p = meta.problems.find(x => x.id === problemId);
     if (!p) return;
-    const code = await fetchText("./" + p.template);
-    cm.setValue(code);
-    qs("#templateHint").textContent = `Loaded template: ${p.template}`;
+    if (!p.runJson){
+      cm.setValue("");
+      qs("#codeHint").textContent = "No run JSON configured";
+      return;
+    }
+
+    const runPath = "./" + String(p.runJson).replace(/^\//, "");
+    try{
+      if (/\.(py|txt)$/i.test(runPath)){
+        const code = await fetchText(runPath);
+        cm.setValue(code || "# (template empty)");
+        qs("#codeHint").textContent = `Loaded template: ${p.runJson}`;
+        return;
+      }
+      const run = await fetchJSON(runPath);
+      const { skeleton, hint } = getSkeletonFromRun(run);
+      const code = skeleton || "# (skeleton missing in run JSON)";
+      cm.setValue(code);
+      qs("#codeHint").textContent = `${hint}: ${p.runJson}`;
+    }catch(err){
+      console.error(err);
+      cm.setValue("# (failed to load skeleton)");
+      qs("#codeHint").textContent = `Load failed: ${p.runJson}`;
+    }
   }
 
-  await loadTemplate(problemSelect.value);
+  await loadSkeleton(problemSelect.value);
 
   problemSelect.addEventListener("change", async () => {
-    await loadTemplate(problemSelect.value);
+    await loadSkeleton(problemSelect.value);
     if (window.gsap){
       gsap.fromTo("#codeCard", { scale: 0.985, opacity: 0.6 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
     }
@@ -176,7 +299,6 @@ async function main(){
       problem: {
         id: chosenProblemId,
         name: chosenProblem?.name ?? chosenProblemId,
-        templatePath: chosenProblem?.template,
         runJsonPath: chosenProblem?.runJson
       },
       model: {

@@ -4,42 +4,36 @@
       "id": "tsp",
       "name": "TSP",
       "tagline": "Traveling Salesman Problem",
-      "template": "templates/tsp.py",
       "runJson": "data/tsp.json"
     },
     {
       "id": "mcnd",
       "name": "MCND",
       "tagline": "Multi-Commodity Network Design",
-      "template": "templates/mcnd.py",
       "runJson": "data/mcnd.json"
     },
     {
       "id": "jssp",
       "name": "JSSP",
       "tagline": "Job-Shop Scheduling",
-      "template": "templates/jssp.py",
       "runJson": "data/jssp.json"
     },
     {
       "id": "cwlp",
       "name": "CWLP",
       "tagline": "Capacitated Warehouse Location",
-      "template": "templates/cwlp.py",
       "runJson": "data/cwlp.json"
     },
     {
       "id": "imo6",
       "name": "IMO6",
       "tagline": "Generic MILP (IMO6)",
-      "template": "templates/imo6.py",
       "runJson": "data/imo6.json"
     },
     {
       "id": "pdptw",
       "name": "PDPTW",
       "tagline": "Pickup & Delivery with Time Windows",
-      "template": "templates/pdptw.py",
       "runJson": "data/pdptw.json"
     }
   ]

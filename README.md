@@ -4,7 +4,7 @@ This is a **static** (no backend required) demo UI for EvoCut-style runs.
 
 It has **two pages**:
 
-- `index.html` — setup/config page (pick a problem template, edit Pyomo code, choose improvement strategy & targets, set max generations/populations).
+- `index.html` — setup/config page (load skeleton code from a run JSON, edit it, choose improvement strategy & targets, set max generations/populations).
 - `run.html` — animated “live replay” page that reads an existing JSON run and **simulates evolution in real time** (timeline, code diff, metrics, live chart, final summary).
 
 ## Quick start
@@ -13,12 +13,9 @@ It has **two pages**:
    Example filenames used by the demo:
    - `tsp.json`, `mcnd.json`, `jssp.json`, `cwlp.json`, `imo6.json`, `pdptw.json`
 
-2. Put your Pyomo templates into `./templates/` (or edit the ones provided).
-   - Each template can optionally include the marker:
-     ```py
-     # <EVOCUT_INSERT_CUT_HERE>
-     ```
-     Cuts will be inserted there during playback; otherwise they’re appended to the bottom.
+2. Ensure each run JSON includes a model skeleton or full code:
+   - Preferred: `skeleton` (top-level) or `chromosome.full_code` (per individual).
+   - If `chromosome.full_code` is used, the UI derives a skeleton by removing `chromosome.added_cut`.
 
 3. Serve the folder with a local web server (fetch() won’t work reliably with file://):
    ```bash

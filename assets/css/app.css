@@ -20,6 +20,11 @@ html, body {
   overflow-x: hidden;
 }
 
+select option{
+  color: #0f172a;
+  background: #f8fafc;
+}
+
 .noise:before{
   content:"";
   position: fixed;
@@ -118,6 +123,18 @@ html, body {
   background: rgba(0,0,0,0.25);
   border-radius: 16px;
   overflow: hidden;
+}
+
+.cutbox{
+  border-color: rgba(52,211,153,0.35);
+  background: rgba(16,185,129,0.08);
+}
+.cutbox .cut-title{
+  color: rgba(167,243,208,0.85);
+  border-bottom: 1px solid rgba(52,211,153,0.25);
+}
+.cutbox pre{
+  color: rgba(167,243,208,0.95);
 }
 
 .mini-scroll::-webkit-scrollbar{ width: 10px; height: 10px; }

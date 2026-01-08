@@ -63,6 +63,10 @@ export function extractCut(indiv){
   return normalizeCutText(c);
 }
 
+export function extractFullCode(indiv){
+  return String(indiv?.chromosome?.full_code ?? "").trim();
+}
+
 export function extractIdea(indiv){
   return String(indiv?.chromosome?.idea ?? "").trim();
 }
