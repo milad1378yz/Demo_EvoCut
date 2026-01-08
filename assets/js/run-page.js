@@ -114,8 +114,28 @@ function findCodeSourceFromGens(gens){
   return null;
 }
 
-function renderPopulationTable(pop){
-  const sorted = [...(pop ?? [])].sort((a,b) => Number(b.fitness ?? 0) - Number(a.fitness ?? 0)).slice(0, 6);
+function getIndKey(ind){
+  const chr = ind?.chromosome ?? {};
+  const primary = ind?.id || chr?.id || chr?.uuid || chr?.idea || chr?.full_code || chr?.added_cut;
+  if (primary) return String(primary);
+  const idea = extractIdea(ind).slice(0, 40);
+  const cut = extractCut(ind).slice(0, 40);
+  return `fit:${ind?.fitness ?? "?"}|idea:${idea}|cut:${cut}`;
+}
+
+function mergeTopIndividuals(existing, incoming, limit=5){
+  const dedup = new Map();
+  for (const ind of [...(existing ?? []), ...(incoming ?? [])]){
+    const key = getIndKey(ind);
+    if (!dedup.has(key)) dedup.set(key, ind);
+  }
+  const uniques = Array.from(dedup.values());
+  uniques.sort((a,b) => Number(b.fitness ?? 0) - Number(a.fitness ?? 0));
+  return uniques.slice(0, limit);
+}
+
+function renderPopulationTable(pop, limit=5){
+  const sorted = [...(pop ?? [])].sort((a,b) => Number(b.fitness ?? 0) - Number(a.fitness ?? 0)).slice(0, limit);
   const rows = sorted.map((ind, i) => {
     const idea = (extractIdea(ind) || "-").slice(0, 60);
     const fit = formatNumber(ind.fitness, 3);
@@ -205,6 +225,7 @@ async function main(){
 
   // Replay
   const ms = Number(cfg.replay?.msPerGeneration ?? 1100);
+  let topIndividuals = [];
 
   for (let i=0; i<gens.length; i++){
     const g = gens[i];
@@ -232,7 +253,8 @@ async function main(){
     qs("#cutSnippet").textContent = shortCut(cut || "# (no cut)", 10);
 
     // Population preview
-    setHTML(qs("#popTable"), renderPopulationTable(g.population));
+    topIndividuals = mergeTopIndividuals(topIndividuals, g.population, 5);
+    setHTML(qs("#popTable"), renderPopulationTable(topIndividuals, 5));
 
     // Chart point
     const lower = (g.meanFitness ?? 0) - (g.stdFitness ?? 0);
