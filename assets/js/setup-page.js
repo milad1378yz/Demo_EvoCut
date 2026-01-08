@@ -135,6 +135,100 @@ function getSkeletonFromRun(run){
   return { skeleton: "", hint: "Skeleton missing in run JSON" };
 }
 
+function detectProblemFromSkeleton(fileName, content){
+  const name = String(fileName || "").toLowerCase();
+  const body = String(content || "").toLowerCase();
+  if (name.includes("jssp") || /job[\s-]?shop/.test(body) || /\bjssp\b/.test(body)) return "jssp";
+  if (name.includes("tsp") || /travel(l)?ing salesman/.test(body) || /\btsp\b/.test(body)) return "tsp";
+  return null;
+}
+
+function parseEvolveBlocks(raw){
+  const normalized = String(raw || "").replace(/\r\n/g, "\n");
+  const lines = normalized.split("\n");
+  const cleaned = [];
+  const spans = [];
+  const startRe = /<\s*evolve\s*>/i;
+  const endRe = /<\s*\/\s*evolve\s*>/i;
+
+  let inBlock = false;
+  let startLine = null;
+
+  for (const rawLine of lines){
+    let line = rawLine;
+    let insertedStart = false;
+
+    if (startRe.test(line)){
+      line = line.replace(startRe, "");
+      cleaned.push("# >>> evolve start (only this block can change)");
+      startLine = cleaned.length;
+      inBlock = true;
+      insertedStart = true;
+    }
+
+    if (endRe.test(line)){
+      const parts = line.split(endRe);
+      const before = parts[0];
+      if (before && before.trim().length){
+        cleaned.push(before);
+      }
+      const endLine = cleaned.length;
+      if (inBlock && startLine !== null){
+        spans.push({ start: startLine, end: endLine });
+      }
+      cleaned.push("# <<< evolve end");
+      inBlock = false;
+      startLine = null;
+
+      if (parts[1] && parts[1].trim().length){
+        cleaned.push(parts[1]);
+      }
+      continue;
+    }
+
+    if (!insertedStart || line.trim().length){
+      cleaned.push(line);
+    }
+  }
+
+  if (inBlock && startLine !== null){
+    spans.push({ start: startLine, end: cleaned.length });
+  }
+
+  if (spans.length === 0){
+    throw new Error("Uploaded skeleton is missing <evolve> tags.");
+  }
+
+  return { code: cleaned.join("\n").trimEnd(), ranges: spans };
+}
+
+function clearEvolveHighlights(cm){
+  if (!cm) return;
+  if (cm.__evolveLines){
+    cm.__evolveLines.forEach(line => cm.removeLineClass(line, "wrap", "cm-evolve"));
+  }
+  cm.__evolveLines = [];
+}
+
+function applyEvolveHighlights(cm, ranges){
+  if (!cm) return;
+  clearEvolveHighlights(cm);
+  const docLines = cm.lineCount();
+  const seen = new Set();
+  for (const r of (ranges || [])){
+    const start = Math.max(0, Math.min(docLines - 1, r.start ?? 0));
+    const end = Math.max(start, Math.min(docLines, r.end ?? start));
+    for (let line = start; line < end; line++){
+      if (line < 0 || line >= docLines) continue;
+      const key = `${line}`;
+      if (seen.has(key)) continue;
+      cm.addLineClass(line, "wrap", "cm-evolve");
+      seen.add(key);
+    }
+  }
+  cm.__evolveLines = Array.from(seen).map(x => Number(x));
+}
+
 function makeActionCard(a){
   const disabledCls = a.enabled ? "" : "opacity-50 cursor-not-allowed";
   const badge = a.enabled ? `<span class="badge">enabled</span>` : `<span class="badge">coming soon</span>`;
@@ -228,8 +322,24 @@ async function main(){
   });
   cm.setSize("100%", "420px");
 
+  const uploadInput = qs("#skeletonUpload");
+  const uploadWrap = qs("#uploadWrap");
+  const uploadStatus = qs("#uploadStatus");
+  const uploadError = qs("#uploadError");
+  let uploadedSkeleton = null;
+
+  const showUploadError = (msg) => {
+    if (uploadError){
+      uploadError.textContent = String(msg);
+      uploadError.classList.remove("hidden");
+    }
+  };
+  const clearUploadError = () => uploadError?.classList.add("hidden");
+
   // Load skeleton from run JSON
   async function loadSkeleton(problemId){
+    if (uploadedSkeleton) return; // keep uploaded skeleton intact
+
     const p = meta.problems.find(x => x.id === problemId);
     if (!p) return;
     if (!p.runJson){
@@ -237,6 +347,8 @@ async function main(){
       qs("#codeHint").textContent = "No run JSON configured";
       return;
     }
+
+    clearEvolveHighlights(cm);
 
     const runPath = "./" + String(p.runJson).replace(/^\//, "");
     try{
@@ -261,11 +373,58 @@ async function main(){
   await loadSkeleton(problemSelect.value);
 
   problemSelect.addEventListener("change", async () => {
+    if (uploadedSkeleton) return;
     await loadSkeleton(problemSelect.value);
     if (window.gsap){
       gsap.fromTo("#codeCard", { scale: 0.985, opacity: 0.6 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
     }
   });
+
+  // Upload skeleton
+  if (uploadInput){
+    uploadInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      clearUploadError();
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const text = reader.result ?? "";
+          const parsed = parseEvolveBlocks(text);
+          const problemId = detectProblemFromSkeleton(file.name, text);
+          if (!problemId) throw new Error("Only JSSP and TSP skeletons are supported in this demo.");
+
+          uploadedSkeleton = {
+            fileName: file.name,
+            problemId,
+            ranges: parsed.ranges
+          };
+
+          problemSelect.value = problemId;
+          cm.setValue(parsed.code || "# (empty skeleton)");
+          applyEvolveHighlights(cm, parsed.ranges);
+
+          if (uploadWrap){
+            uploadWrap.classList.add("opacity-60", "pointer-events-none");
+          }
+          uploadInput.disabled = true;
+          if (uploadStatus){
+            uploadStatus.textContent = `Uploaded ${file.name} (${problemId.toUpperCase()}). Editable blocks are highlighted.`;
+          }
+          qs("#codeHint").textContent = `Using uploaded skeleton: ${file.name}`;
+        }catch(err){
+          console.error(err);
+          showUploadError(err?.message || "Failed to read skeleton file.");
+          uploadInput.value = "";
+        }
+      };
+      reader.onerror = () => {
+        showUploadError("Could not read that file.");
+        uploadInput.value = "";
+      };
+      reader.readAsText(file);
+    });
+  }
 
   // Actions
   renderActions();
@@ -283,7 +442,7 @@ async function main(){
 
   // Start
   qs("#startBtn").addEventListener("click", () => {
-    const chosenProblemId = problemSelect.value;
+    const chosenProblemId = uploadedSkeleton?.problemId ?? problemSelect.value;
     const chosenProblem = meta.problems.find(p => p.id === chosenProblemId);
 
     const actions = qsa('#actionsWrap input[type="checkbox"]:checked').map(x => x.value);
@@ -300,7 +459,10 @@ async function main(){
       },
       model: {
         language: "pyomo",
-        code: cm.getValue()
+        code: cm.getValue(),
+        source: uploadedSkeleton ? "uploaded" : "run_json",
+        uploadedFileName: uploadedSkeleton?.fileName ?? null,
+        evolveRegions: uploadedSkeleton?.ranges ?? []
       },
       strategy: {
         actions,

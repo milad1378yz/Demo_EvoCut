@@ -176,13 +176,16 @@ async function main(){
 
   // Skeleton: derive from full_code by removing cuts to ensure clean skeleton
   const configCode = String(cfg.model?.code ?? "");
+  const skeletonSource = cfg.model?.source ?? "run_json";
   const bestRunInd = run?.best_indiv || run?.bestIndiv;
   const codeSource = findCodeSourceFromGens(gens) || bestRunInd;
   const initialFullCode = extractFullCode(codeSource);
   const initialCut = extractCut(codeSource);
 
-  // Derive skeleton by removing any cuts from the full code
-  let skeleton = deriveSkeleton(initialFullCode, initialCut);
+  const preferUploaded = (skeletonSource === "uploaded") && !!configCode;
+
+  // Derive skeleton by removing any cuts from the full code unless an uploaded skeleton is present
+  let skeleton = preferUploaded ? configCode : deriveSkeleton(initialFullCode, initialCut);
 
   // Fallback to run JSON skeleton fields if derivation failed
   if (!skeleton) {
