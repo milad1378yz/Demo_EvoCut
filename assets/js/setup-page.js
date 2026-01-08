@@ -24,117 +24,6 @@ async function fetchJSON(path){
   if (!res.ok) throw new Error(`Failed to load ${path}`);
   return await res.json();
 }
-
-async function fetchText(path){
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Failed to load ${path}`);
-  return await res.text();
-}
-
-function normalizeCutText(cut){
-  if (!cut) return "";
-  return String(cut).replace(/\r\n/g, "\n").trim();
-}
-
-function deriveSkeleton(fullCode, cutText){
-  if (!fullCode) return "";
-  const cut = normalizeCutText(cutText);
-  const normalizedFull = String(fullCode).replace(/\r\n/g, "\n");
-  if (!cut) return normalizedFull.trimEnd();
-
-  const idx = normalizedFull.indexOf(cut);
-  if (idx !== -1){
-    const before = normalizedFull.slice(0, idx);
-    const after = normalizedFull.slice(idx + cut.length);
-    return (before + after).replace(/\n{3,}/g, "\n\n").trimEnd();
-  }
-
-  const fullLines = normalizedFull.split("\n");
-  const cutLines = cut.split("\n").map(line => line.trim()).filter(Boolean);
-  if (cutLines.length === 0) return normalizedFull.trimEnd();
-
-  for (let i = 0; i < fullLines.length; i++){
-    if (fullLines[i].trim() !== cutLines[0]) continue;
-    let j = 0;
-    let k = i;
-    while (j < cutLines.length && k < fullLines.length){
-      const current = fullLines[k].trim();
-      if (current === cutLines[j]){
-        j++;
-        k++;
-        continue;
-      }
-      if (current === ""){
-        k++;
-        continue;
-      }
-      break;
-    }
-    if (j === cutLines.length){
-      const kept = fullLines.slice(0, i).concat(fullLines.slice(k));
-      return kept.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
-    }
-  }
-
-  const cutSet = new Set(cutLines);
-  const filtered = fullLines.filter(line => {
-    const trimmed = line.trim();
-    return trimmed === "" || !cutSet.has(trimmed);
-  });
-  return filtered.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
-}
-
-function pickCodeSourceFromPopulation(pop){
-  if (!Array.isArray(pop) || pop.length === 0) return null;
-  let best = pop[0];
-  for (const ind of pop){
-    if (Number(ind?.fitness ?? -Infinity) > Number(best?.fitness ?? -Infinity)) best = ind;
-  }
-  if (best?.chromosome?.full_code) return best;
-  return pop.find(ind => ind?.chromosome?.full_code) ?? null;
-}
-
-function getSkeletonFromRun(run){
-  // Try to find skeleton by deriving from full_code and removing cuts
-  const bestIndiv = run?.best_indiv || run?.bestIndiv;
-  if (bestIndiv?.chromosome?.full_code){
-    const fullCode = bestIndiv.chromosome.full_code;
-    const cut = bestIndiv.chromosome.added_cut ?? "";
-    const skeleton = deriveSkeleton(String(fullCode), cut);
-    if (skeleton){
-      return { skeleton, hint: "Loaded skeleton from best_indiv (cuts removed)" };
-    }
-  }
-
-  const pools = [];
-  if (Array.isArray(run?.current_population)) pools.push(run.current_population);
-  if (Array.isArray(run?.prev_populations)){
-    for (let i = run.prev_populations.length - 1; i >= 0; i--){
-      const pop = run.prev_populations[i]?.[0];
-      if (Array.isArray(pop) && pop.length) pools.push(pop);
-    }
-  }
-
-  for (const pop of pools){
-    const source = pickCodeSourceFromPopulation(pop);
-    if (!source) continue;
-    const fullCode = source?.chromosome?.full_code ?? "";
-    const cut = source?.chromosome?.added_cut ?? "";
-    const skeleton = deriveSkeleton(String(fullCode), cut);
-    if (skeleton){
-      return { skeleton, hint: "Loaded skeleton from population (cuts removed)" };
-    }
-  }
-
-  // Fallback to direct skeleton fields only if derivation failed
-  const direct = run?.skeleton || run?.base_code || run?.model_code || "";
-  if (direct){
-    return { skeleton: String(direct).trimEnd(), hint: "Loaded skeleton from run JSON" };
-  }
-
-  return { skeleton: "", hint: "Skeleton missing in run JSON" };
-}
-
 function detectProblemFromSkeleton(fileName, content){
   const name = String(fileName || "").toLowerCase();
   const body = String(content || "").toLowerCase();
@@ -326,6 +215,8 @@ async function main(){
   const uploadWrap = qs("#uploadWrap");
   const uploadStatus = qs("#uploadStatus");
   const uploadError = qs("#uploadError");
+  const codeHint = qs("#codeHint");
+  const startBtn = qs("#startBtn");
   let uploadedSkeleton = null;
 
   const showUploadError = (msg) => {
@@ -336,45 +227,31 @@ async function main(){
   };
   const clearUploadError = () => uploadError?.classList.add("hidden");
 
-  // Load skeleton from run JSON
-  async function loadSkeleton(problemId){
-    if (uploadedSkeleton) return; // keep uploaded skeleton intact
-
-    const p = meta.problems.find(x => x.id === problemId);
-    if (!p) return;
-    if (!p.runJson){
-      cm.setValue("");
-      qs("#codeHint").textContent = "No run JSON configured";
-      return;
-    }
-
+  const setBlankEditor = () => {
     clearEvolveHighlights(cm);
-
-    const runPath = "./" + String(p.runJson).replace(/^\//, "");
-    try{
-      if (/\.(py|txt)$/i.test(runPath)){
-        const code = await fetchText(runPath);
-        cm.setValue(code || "# (template empty)");
-        qs("#codeHint").textContent = `Loaded template: ${p.runJson}`;
-        return;
-      }
-      const run = await fetchJSON(runPath);
-      const { skeleton, hint } = getSkeletonFromRun(run);
-      const code = skeleton || "# (skeleton missing in run JSON)";
-      cm.setValue(code);
-      qs("#codeHint").textContent = `${hint}: ${p.runJson}`;
-    }catch(err){
-      console.error(err);
-      cm.setValue("# (failed to load skeleton)");
-      qs("#codeHint").textContent = `Load failed: ${p.runJson}`;
+    cm.setValue("");
+    const p = meta.problems.find(x => x.id === problemSelect.value);
+    if (codeHint){
+      const runHint = p?.runJson ? `Run data: ${p.runJson}` : "Run data file not set.";
+      codeHint.textContent = `Waiting for skeleton upload (.py with <evolve> tags). ${runHint}`;
     }
-  }
+  };
 
-  await loadSkeleton(problemSelect.value);
+  const updateStartState = () => {
+    const ready = !!uploadedSkeleton;
+    if (startBtn){
+      startBtn.disabled = !ready;
+      startBtn.classList.toggle("opacity-50", !ready);
+      startBtn.classList.toggle("cursor-not-allowed", !ready);
+    }
+  };
 
-  problemSelect.addEventListener("change", async () => {
+  setBlankEditor();
+  updateStartState();
+
+  problemSelect.addEventListener("change", () => {
     if (uploadedSkeleton) return;
-    await loadSkeleton(problemSelect.value);
+    setBlankEditor();
     if (window.gsap){
       gsap.fromTo("#codeCard", { scale: 0.985, opacity: 0.6 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
     }
@@ -411,7 +288,10 @@ async function main(){
           if (uploadStatus){
             uploadStatus.textContent = `Uploaded ${file.name} (${problemId.toUpperCase()}). Editable blocks are highlighted.`;
           }
-          qs("#codeHint").textContent = `Using uploaded skeleton: ${file.name}`;
+          if (codeHint){
+            codeHint.textContent = `Using uploaded skeleton: ${file.name}`;
+          }
+          updateStartState();
         }catch(err){
           console.error(err);
           showUploadError(err?.message || "Failed to read skeleton file.");
@@ -441,7 +321,12 @@ async function main(){
   maxPops.addEventListener("input", () => maxPopsValue.textContent = maxPops.value);
 
   // Start
-  qs("#startBtn").addEventListener("click", () => {
+  startBtn.addEventListener("click", () => {
+    if (!uploadedSkeleton){
+      showUploadError("Upload a skeleton file to start the replay.");
+      return;
+    }
+
     const chosenProblemId = uploadedSkeleton?.problemId ?? problemSelect.value;
     const chosenProblem = meta.problems.find(p => p.id === chosenProblemId);
 
