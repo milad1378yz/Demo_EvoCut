@@ -27,7 +27,7 @@ export function createFitnessChart(canvas){
         label: "Mean +/- std dev",
         data: [],
         borderColor: "rgba(255,255,255,0)",
-        backgroundColor: "rgba(255,255,255,0.08)",
+        backgroundColor: "rgba(139, 92, 246, 0.12)",  // Subtle purple tint
         pointRadius: 0,
         tension: 0.25,
         fill: "-1"
@@ -35,17 +35,27 @@ export function createFitnessChart(canvas){
       {
         label: "Mean Fitness",
         data: [],
-        borderWidth: 2,
+        borderColor: "rgba(59, 130, 246, 0.9)",  // Vibrant blue
+        backgroundColor: "rgba(59, 130, 246, 0.2)",
+        borderWidth: 2.5,
         tension: 0.25,
-        pointRadius: 2
+        pointRadius: 3,
+        pointBackgroundColor: "rgba(59, 130, 246, 1)",
+        pointBorderColor: "rgba(255, 255, 255, 0.8)",
+        pointBorderWidth: 1
       },
       {
         label: "Best Fitness",
         data: [],
+        borderColor: "rgba(32, 140, 52, 0.95)",  // Vibrant pink/magenta
+        backgroundColor: "rgba(236, 72, 153, 0.2)",
         borderDash: [8, 6],
-        borderWidth: 2,
+        borderWidth: 2.5,
         tension: 0.25,
-        pointRadius: 2
+        pointRadius: 3,
+        pointBackgroundColor: "rgba(236, 72, 153, 1)",
+        pointBorderColor: "rgba(255, 255, 255, 0.8)",
+        pointBorderWidth: 1
       }
     ]
   };
