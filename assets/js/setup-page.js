@@ -281,11 +281,6 @@ async function main(){
   maxPopsValue.textContent = maxPops.value;
   maxPops.addEventListener("input", () => maxPopsValue.textContent = maxPops.value);
 
-  const speed = qs("#speed");
-  const speedValue = qs("#speedValue");
-  speedValue.textContent = speed.value + " ms";
-  speed.addEventListener("input", () => speedValue.textContent = speed.value + " ms");
-
   // Start
   qs("#startBtn").addEventListener("click", () => {
     const chosenProblemId = problemSelect.value;
@@ -319,7 +314,7 @@ async function main(){
         maxGenerations: Number(maxPops.value)
       },
       replay: {
-        msPerGeneration: Number(speed.value)
+        msPerGeneration: 2000
       }
     };
 
