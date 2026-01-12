@@ -1,5 +1,5 @@
 import { attachParticles } from "./particles.js";
-import { qs, sleep, formatNumber, loadConfig } from "./utils.js";
+import { qs, sleep, formatNumber, loadConfig, getQueryParams, uid } from "./utils.js";
 import { buildGenerations, extractCut, extractFullCode, extractIdea, getBestIndividual } from "./data/population.js";
 import { createFitnessChart } from "./ui/chart.js";
 import { renderTimeline, markRunning, markDone } from "./ui/timeline.js";
@@ -8,6 +8,50 @@ async function fetchJSON(path){
   const res = await fetch(path);
   if (!res.ok) throw new Error(`Failed to load ${path}`);
   return await res.json();
+}
+
+async function resolveConfig(){
+  const cfg = loadConfig();
+  const params = getQueryParams();
+  const requestedId = params.problem || "jssp";
+  const fallbackIds = ["jssp", "tsp"];
+  let problems = [];
+
+  try{
+    const meta = await fetchJSON("./data/problems.json?v=" + Date.now());
+    problems = meta?.problems ?? [];
+  }catch(err){
+    problems = [];
+  }
+
+  const findProblem = (id) => problems.find(p => p.id === id) ?? null;
+  const allowedIds = problems.length ? problems.map(p => p.id) : fallbackIds;
+  const isAllowed = (id) => !!id && allowedIds.includes(id);
+
+  const cfgProblemId = isAllowed(cfg?.problem?.id) ? cfg.problem.id : null;
+  const requestedIdSafe = isAllowed(requestedId) ? requestedId : allowedIds[0] || requestedId;
+
+  const cfgProblem = cfgProblemId ? findProblem(cfgProblemId) : null;
+  const requestedProblem = findProblem(requestedIdSafe);
+  const problem = cfgProblem || requestedProblem || problems[0] || null;
+
+  const problemId = problem?.id ?? cfgProblemId ?? requestedIdSafe;
+  const knownRunPaths = new Set((problems || []).map(p => p?.runJson).filter(Boolean));
+  const cfgRunPath = cfg?.problem?.runJsonPath;
+  const useCfgRunPath = !!cfgRunPath && knownRunPaths.has(cfgRunPath);
+  const runJsonPath = problem?.runJson || (useCfgRunPath ? cfgRunPath : null) || `data/${problemId}.json`;
+  const base = cfg ?? {};
+
+  return {
+    ...base,
+    runId: base.runId ?? uid("demo"),
+    createdAt: base.createdAt ?? new Date().toISOString(),
+    problem: {
+      id: problemId,
+      name: problem?.name ?? base.problem?.name ?? problemId,
+      runJsonPath
+    }
+  };
 }
 
 function animateText(el, newText){
@@ -166,15 +210,14 @@ async function main(){
   // Background particles
   attachParticles(qs("#bgParticles"));
 
-  const cfg = loadConfig();
-  if (!cfg){
+  const cfg = await resolveConfig();
+  if (!cfg?.problem?.id){
     qs("#missingCfg").classList.remove("hidden");
     return;
   }
 
   // Header
   qs("#runTitle").textContent = `${cfg.problem?.name ?? cfg.problem?.id} - EvoCut Replay`;
-  qs("#runMeta").textContent = `Run ${cfg.runId} | target: ${cfg.objective?.target ?? "-"} | max generations: ${cfg.evolution?.maxGenerations ?? "-"}`;
 
   // Fetch JSON run
   const problemId = cfg.problem?.id;
@@ -184,9 +227,16 @@ async function main(){
   // Build gens and apply max generations
   let gens = buildGenerations(run);
 
-  const maxG = Number(cfg.evolution?.maxGenerations ?? (gens.length-1));
+  let maxG = Number(cfg.evolution?.maxGenerations ?? (gens.length-1));
+  if (!Number.isFinite(maxG)) maxG = gens.length - 1;
   // keep 0..maxG inclusive (if available)
   gens = gens.slice(0, Math.min(gens.length, maxG + 1));
+
+  const runMeta = qs("#runMeta");
+  if (runMeta){
+    const maxText = Number.isFinite(maxG) ? maxG : "-";
+    runMeta.textContent = `Run ${cfg.runId} | target: ${cfg.objective?.target ?? "-"} | max generations: ${maxText}`;
+  }
 
   // Render timeline skeleton
   renderTimeline(qs("#timeline"), gens);

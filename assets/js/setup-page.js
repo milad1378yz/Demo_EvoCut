@@ -196,8 +196,6 @@ async function main(){
 
   // Load problems metadata (with cache-busting to avoid stale data)
   const meta = await fetchJSON("./data/problems.json?v=" + Date.now());
-  const problemSelect = qs("#problemSelect");
-  problemSelect.innerHTML = meta.problems.map(p => `<option value="${p.id}">${p.name} - ${p.tagline}</option>`).join("");
 
   // CodeMirror
   const textarea = qs("#codeEditor");
@@ -230,10 +228,8 @@ async function main(){
   const setBlankEditor = () => {
     clearEvolveHighlights(cm);
     cm.setValue("");
-    const p = meta.problems.find(x => x.id === problemSelect.value);
     if (codeHint){
-      const runHint = p?.runJson ? `Run data: ${p.runJson}` : "Run data file not set.";
-      codeHint.textContent = `Waiting for skeleton upload (.py with <evolve> tags). ${runHint}`;
+      codeHint.textContent = "Waiting for skeleton upload (.py with <evolve> tags). Problem is detected automatically.";
     }
   };
 
@@ -248,14 +244,6 @@ async function main(){
 
   setBlankEditor();
   updateStartState();
-
-  problemSelect.addEventListener("change", () => {
-    if (uploadedSkeleton) return;
-    setBlankEditor();
-    if (window.gsap){
-      gsap.fromTo("#codeCard", { scale: 0.985, opacity: 0.6 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" });
-    }
-  });
 
   // Upload skeleton
   if (uploadInput){
@@ -277,7 +265,7 @@ async function main(){
             ranges: parsed.ranges
           };
 
-          problemSelect.value = problemId;
+          const problemMeta = meta.problems.find(x => x.id === problemId);
           cm.setValue(parsed.code || "# (empty skeleton)");
           applyEvolveHighlights(cm, parsed.ranges);
 
@@ -289,7 +277,8 @@ async function main(){
             uploadStatus.textContent = `Uploaded ${file.name} (${problemId.toUpperCase()}). Editable blocks are highlighted.`;
           }
           if (codeHint){
-            codeHint.textContent = `Using uploaded skeleton: ${file.name}`;
+            const runHint = problemMeta?.runJson ? `Run data: ${problemMeta.runJson}` : "Run data file not set.";
+            codeHint.textContent = `Using uploaded skeleton: ${file.name}. ${runHint}`;
           }
           updateStartState();
         }catch(err){
@@ -327,7 +316,7 @@ async function main(){
       return;
     }
 
-    const chosenProblemId = uploadedSkeleton?.problemId ?? problemSelect.value;
+    const chosenProblemId = uploadedSkeleton?.problemId;
     const chosenProblem = meta.problems.find(p => p.id === chosenProblemId);
 
     const actions = qsa('#actionsWrap input[type="checkbox"]:checked').map(x => x.value);
